@@ -6,3 +6,6 @@ outputs/
 .claude/
 .venv/
 venv/
+
+# JetBrains IDE (PyCharm / IntelliJ IDEA)
+.idea/

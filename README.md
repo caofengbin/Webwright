@@ -15,6 +15,7 @@
 
 - 📝 **Blog:** [Webwright: A Terminal Is All You Need For Web Agents](https://www.microsoft.com/en-us/research/articles/webwright-a-terminal-is-all-you-need-for-web-agents/)
 - 🌐 **Project Page:** [microsoft.github.io/Webwright](https://microsoft.github.io/Webwright/)
+- 🌍 **Language:** English | [中文](README.zh-CN.md)
 
 Webwright gives LLM a terminal where it can launch multiple browser sessions to inspect the page and complete a web task. It captures and inspects page screenshots/states only when needed. It enforces each web task to be completed end-to-end within a re-runnable Python script, i.e. your web agent browsing history is a single code file. No multi-agent system, no graph engine, no plugin layer, no hidden orchestration — just a terminal, a browser, and a model.
 
