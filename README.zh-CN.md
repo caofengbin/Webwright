@@ -9,7 +9,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/python-%E2%89%A53.10-blue?logo=python&logoColor=white" alt="Python">
   <img src="https://img.shields.io/badge/playwright-chromium-green" alt="Playwright">
-  <img src="https://img.shields.io/badge/backends-OpenAI%20%7C%20Anthropic%20%7C%20OpenRouter-orange" alt="Backends">
+  <img src="https://img.shields.io/badge/backends-OpenAI%20%7C%20Anthropic%20%7C%20OpenRouter%20%7C%20DeepSeek-orange" alt="Backends">
   <img src="https://img.shields.io/badge/footprint-%E2%89%A4~1.5k%20LoC-brightgreen" alt="Footprint">
 </p>
 
@@ -25,6 +25,7 @@ Webwright 为大语言模型(LLM)提供一个终端环境,模型可以在其中�
 
 ## 📰 新闻
 
+- **2026-06-01** — 新增 DeepSeek 官方 API 后端;可通过 `model_deepseek.yaml` 和 `.env` 中的 `DEEPSEEK_API_KEY` 使用。
 - **2026-05-11** — 支持 Task2UI 模式:Webwright 完成任务后将任务结果渲染为基于 HTML 的 Web 应用,你可以方便地查看和复用。
 - **2026-05-06** — 添加了 Codex 和 Claude Code 的插件清单;通过 `/plugin install webwright@webwright` 安装。OpenClaw 和 Hermes Agent 集成已上线;同一个 `skills/webwright/` 目录现在可在 Claude Code、Codex、OpenClaw 和 Hermes 中加载。
 - **2026-05-04** — 首次公开发布:约 1.5k 行代码,支持 OpenAI / Anthropic / OpenRouter 后端,Playwright 环境。
@@ -53,7 +54,7 @@ Webwright 采取了不同的立场:**将代理与浏览器分离**,把浏览器�
 大多数网络代理框架将真正的代理循环掩埋在层层抽象之下。Webwright 采取相反的立场:
 
 - 🪶 **轻量级设计** —— 核心代理循环位于单个 ~450 行文件中,Playwright 环境约 570 行,CLI 约 150 行。
-- 🧩 **可插拔模型后端** —— OpenAI、Anthropic 和 OpenRouter,每个约 150–200 行。
+- 🧩 **可插拔模型后端** —— OpenAI、Anthropic、OpenRouter 和 DeepSeek,每个约 150–200 行。
 - 🔍 **零隐藏框架** —— 仅依赖 `httpx`、`pydantic`、`playwright` 和 `typer`。
 - 🔁 **扁平的 提示 → 观察 → 执行 脚本循环** —— 端到端可读,易于调试,易于 fork。
 - 🧪 **以运行产物为先** —— 每次运行都将轨迹和截图写入磁盘以供检查。
@@ -111,8 +112,8 @@ webwright/
 │   ├── agents/default.py    # 核心代理循环
 │   ├── environments/        # Playwright 浏览器工作空间
 │   ├── tools/               # image_qa、self_reflection
-│   ├── models/              # openai_model、anthropic_model、base
-│   ├── config/              # base.yaml、model_openai.yaml、model_claude.yaml
+│   ├── models/              # openai_model、anthropic_model、deepseek_model、base
+│   ├── config/              # base.yaml、model_openai.yaml、model_claude.yaml、model_deepseek.yaml
 │   └── utils/
 ├── assets/
 │   └── task_showcase/       # 用于可重复运行的小型 Flask 仪表盘
@@ -168,7 +169,7 @@ python assets/task_showcase/app.py \
 
 - Python 3.10+
 - 通过 Playwright 安装的 Chromium
-- 所选后端的 API 密钥(OpenAI、Anthropic 或 OpenRouter)
+- 所选后端的 API 密钥(OpenAI、Anthropic、OpenRouter 或 DeepSeek)
 
 ### 安装
 
@@ -179,9 +180,11 @@ playwright install chromium
 
 ### 运行
 
-为已配置的后端导出凭据(例如,使用 `model_openai.yaml` 时设置 `OPENAI_API_KEY`,
-使用 `model_claude.yaml` 时设置 `ANTHROPIC_API_KEY`)。`image_qa` 和
-`self_reflection` 工具默认使用相同的已配置模型,因此 Anthropic 运行无需 OpenAI 密钥。然后:
+为已配置的后端导出凭据,或将凭据写入项目 `.env` 文件。例如,使用
+`model_openai.yaml` 时设置 `OPENAI_API_KEY`,使用 `model_claude.yaml` 时设置
+`ANTHROPIC_API_KEY`,使用 `model_deepseek.yaml` 时设置 `DEEPSEEK_API_KEY`。
+`image_qa` 和 `self_reflection` 工具默认使用相同的已配置模型,因此 Anthropic 或
+DeepSeek 运行无需 OpenAI 密钥。然后:
 
 ```bash
 python -m webwright.run.cli \
@@ -189,6 +192,23 @@ python -m webwright.run.cli \
     -t "Search for flights from SEA to JFK on 2026-08-15 to 2026-08-20" \
     --start-url https://www.google.com/flights \
     --task-id demo_openai \
+    -o outputs/default
+```
+
+使用 DeepSeek 时,在 `.env` 中添加:
+
+```bash
+DEEPSEEK_API_KEY=your_deepseek_api_key
+```
+
+然后运行:
+
+```bash
+python -m webwright.run.cli \
+    -c base.yaml -c model_deepseek.yaml \
+    -t "Search for flights from SEA to JFK on 2026-08-15 to 2026-08-20" \
+    --start-url https://www.google.com/flights \
+    --task-id demo_deepseek \
     -o outputs/default
 ```
 

@@ -25,6 +25,17 @@ def test_model_claude_does_not_declare_per_tool_overrides() -> None:
     assert "tools" not in config, "model_claude.yaml should rely on the top-level `model:` block"
 
 
+def test_model_deepseek_sets_top_level_deepseek_model() -> None:
+    config = recursive_merge(
+        get_config_from_spec("base.yaml"),
+        get_config_from_spec("model_deepseek.yaml"),
+    )
+
+    assert config["model"]["model_class"] == "deepseek"
+    assert config["model"]["model_name"] == "deepseek-v4-flash"
+    assert config["model"]["deepseek_endpoint"] == "https://api.deepseek.com/chat/completions"
+
+
 def test_extract_model_block_reads_top_level_model(tmp_path) -> None:
     config = {"model": {"model_class": "anthropic", "model_name": "claude-opus-4-7"}}
 

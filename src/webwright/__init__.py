@@ -26,6 +26,12 @@ global_config_dir = Path(
 )
 global_config_dir.mkdir(parents=True, exist_ok=True)
 global_config_file = global_config_dir / ".env"
+# Load env vars in priority order. python-dotenv's default `override=False`
+# means earlier-loaded values win, so we load the most-specific file first:
+#   1) Current working directory's .env (or any ancestor) — project-local config.
+#   2) User-level global .env at `global_config_file` — fallback for shared keys.
+# Pre-existing process env vars always win over both.
+dotenv.load_dotenv()
 dotenv.load_dotenv(dotenv_path=global_config_file)
 
 

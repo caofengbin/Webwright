@@ -9,3 +9,8 @@ venv/
 
 # JetBrains IDE (PyCharm / IntelliJ IDEA)
 .idea/
+
+# Environment variable files (may contain API keys)
+.env
+.env.*
+!.env.example

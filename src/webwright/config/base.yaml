@@ -1,7 +1,7 @@
 # Base agent config — model-agnostic.
 #
-# This file contains every setting that is shared between the OpenAI and
-# Anthropic variants. Stack a model modifier on top via repeated -c flags:
+# This file contains every setting that is shared between model variants.
+# Stack a model modifier on top via repeated -c flags:
 #
 #   source ~/cred.sh
 #   python -m webwright.run.cli \
@@ -11,12 +11,14 @@
 #     --task-id demo_openai \
 #     -o outputs/default
 #
-# Or for Claude:
+# Or for Claude / DeepSeek:
 #     -c base.yaml -c model_claude.yaml
+#     -c base.yaml -c model_deepseek.yaml
 #
-# Required env (provided by ~/cred.sh):
-#   - OPENAI_API_KEY    (only when the configured agent or tool model_class is openai)
+# Required env (provided by ~/cred.sh, .env, or the parent process):
+#   - OPENAI_API_KEY    (only when stacking model_openai.yaml)
 #   - ANTHROPIC_API_KEY (only when stacking model_claude.yaml)
+#   - DEEPSEEK_API_KEY  (only when stacking model_deepseek.yaml)
 #   - BROWSERBASE_API_KEY + BROWSERBASE_PROJECT_ID (only when browser_mode=browserbase)
 
 model:

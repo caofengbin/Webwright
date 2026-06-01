@@ -9,7 +9,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/python-%E2%89%A53.10-blue?logo=python&logoColor=white" alt="Python">
   <img src="https://img.shields.io/badge/playwright-chromium-green" alt="Playwright">
-  <img src="https://img.shields.io/badge/backends-OpenAI%20%7C%20Anthropic%20%7C%20OpenRouter-orange" alt="Backends">
+  <img src="https://img.shields.io/badge/backends-OpenAI%20%7C%20Anthropic%20%7C%20OpenRouter%20%7C%20DeepSeek-orange" alt="Backends">
   <img src="https://img.shields.io/badge/footprint-%E2%89%A4~1.5k%20LoC-brightgreen" alt="Footprint">
 </p>
 
@@ -25,6 +25,7 @@ Already got your favorite agents, and wonder how to make Claude Code, Codex, Her
 
 ## 📰 News
 
+- **2026-06-01** — DeepSeek official API backend added; use `model_deepseek.yaml` with `DEEPSEEK_API_KEY` from `.env`.
 - **2026-05-11** — Support Task2UI mode: Webwright completes the task and renders task results into an HTML-based web app you can easily view and reuse.  
 - **2026-05-06** — Codex and Claude Code plugin manifests added; install via `/plugin install webwright@webwright`. OpenClaw and Hermes Agent integrations shipped; the same `skills/webwright/` folder now loads across Claude Code, Codex, OpenClaw, and Hermes.
 - **2026-05-04** — Initial public release: ~1.5k LoC, OpenAI / Anthropic / OpenRouter backends, Playwright environment.
@@ -53,7 +54,7 @@ Webwright takes a different stance: **separate the agent from the browser**, and
 Most web agent frameworks bury the actual agent loop under layers of abstractions. Webwright takes the opposite stance:
 
 - 🪶 **Lightweight by design** — core agent loop in a single ~450-line file, Playwright environment in ~570 lines, CLI in ~150 lines.
-- 🧩 **Pluggable model backends** — OpenAI, Anthropic, and OpenRouter, each ~150–200 lines.
+- 🧩 **Pluggable model backends** — OpenAI, Anthropic, OpenRouter, and DeepSeek, each ~150–200 lines.
 - 🔍 **Zero hidden frameworks** — just `httpx`, `pydantic`, `playwright`, and `typer`.
 - 🔁 **Flat prompt → observe → execute script loop** — readable end-to-end, easy to debug, easy to fork.
 - 🧪 **Run-artifact first** — every run writes trajectories and screenshots to disk for inspection.
@@ -111,8 +112,8 @@ webwright/
 │   ├── agents/default.py    # core agent loop
 │   ├── environments/        # Playwright browser workspace
 │   ├── tools/               # image_qa, self_reflection
-│   ├── models/              # openai_model, anthropic_model, base
-│   ├── config/              # base.yaml, model_openai.yaml, model_claude.yaml
+│   ├── models/              # openai_model, anthropic_model, deepseek_model, base
+│   ├── config/              # base.yaml, model_openai.yaml, model_claude.yaml, model_deepseek.yaml
 │   └── utils/
 ├── assets/
 │   └── task_showcase/       # tiny Flask dashboard for repeatable runs
@@ -172,7 +173,7 @@ python assets/task_showcase/app.py \
 
 - Python 3.10+
 - Chromium installed through Playwright
-- An API key for your chosen backend (OpenAI, Anthropic, or OpenRouter)
+- An API key for your chosen backend (OpenAI, Anthropic, OpenRouter, or DeepSeek)
 
 ### Install
 
@@ -183,10 +184,12 @@ playwright install chromium
 
 ### Run
 
-Export credentials for the configured backend (for example, `OPENAI_API_KEY`
-with `model_openai.yaml` or `ANTHROPIC_API_KEY` with `model_claude.yaml`). The
-`image_qa` and `self_reflection` tools use the same configured model by default,
-so an Anthropic run does not require an OpenAI key. Then:
+Export credentials for the configured backend, or put them in a project `.env`
+file. For example: `OPENAI_API_KEY` with `model_openai.yaml`,
+`ANTHROPIC_API_KEY` with `model_claude.yaml`, or `DEEPSEEK_API_KEY` with
+`model_deepseek.yaml`. The `image_qa` and `self_reflection` tools use the same
+configured model by default, so an Anthropic or DeepSeek run does not require an
+OpenAI key. Then:
 
 ```bash
 python -m webwright.run.cli \
@@ -194,6 +197,23 @@ python -m webwright.run.cli \
     -t "Search for flights from SEA to JFK on 2026-08-15 to 2026-08-20" \
     --start-url https://www.google.com/flights \
     --task-id demo_openai \
+    -o outputs/default
+```
+
+For DeepSeek, add this to `.env`:
+
+```bash
+DEEPSEEK_API_KEY=your_deepseek_api_key
+```
+
+Then run:
+
+```bash
+python -m webwright.run.cli \
+    -c base.yaml -c model_deepseek.yaml \
+    -t "Search for flights from SEA to JFK on 2026-08-15 to 2026-08-20" \
+    --start-url https://www.google.com/flights \
+    --task-id demo_deepseek \
     -o outputs/default
 ```
 
