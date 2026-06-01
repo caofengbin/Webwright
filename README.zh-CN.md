@@ -210,6 +210,13 @@ python -m webwright.run.cli \
     --start-url https://www.google.com/flights \
     --task-id demo_deepseek \
     -o outputs/default
+    
+python -m webwright.run.cli \
+      -c base.yaml -c fast_no_vision.yaml -c model_deepseek.yaml \
+      -t "Search for flights from SEA to JFK on 2026-08-15 to 2026-08-20" \
+      --start-url https://www.google.com/flights \
+      --task-id demo_deepseek2 \
+      -o outputs/default
 ```
 
 ### 🚩 命令行参数

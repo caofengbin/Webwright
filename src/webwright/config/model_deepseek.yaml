@@ -11,3 +11,9 @@ model:
   model_name: deepseek-v4-flash
   deepseek_endpoint: https://api.deepseek.com/chat/completions
   attach_observation_screenshot: false
+  # Cap output so DeepSeek does not chain into long monologues that occasionally
+  # truncate into whitespace-only responses. 2000 tokens is enough for a single
+  # JSON object containing a thought + one Playwright snippet.
+  max_output_tokens: 2000
+  # Faster failure on rare DeepSeek hangs; the harness retries automatically.
+  request_timeout_seconds: 60

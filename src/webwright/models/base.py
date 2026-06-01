@@ -104,9 +104,48 @@ def _is_transient_http_error(exc: BaseException | None) -> bool:
     return False
 
 
+def _strip_json_envelope(raw: str) -> str:
+    """Tolerate common envelopes that prevent json.loads from succeeding.
+
+    Some non-strict-JSON-schema providers (e.g. DeepSeek, GLM) occasionally
+    wrap their JSON in markdown code fences or pad it with stray whitespace.
+    This helper strips those wrappers without changing the JSON content.
+    """
+    text = raw.strip()
+    # ```json ... ```  or  ``` ... ```
+    if text.startswith("```"):
+        text = text.split("\n", 1)[-1] if "\n" in text else text[3:]
+        if text.endswith("```"):
+            text = text[: -3]
+        text = text.strip()
+    # Find the outermost JSON object/array if there is leading/trailing prose.
+    if not text.startswith(("{", "[")):
+        first = min(
+            (i for i in (text.find("{"), text.find("[")) if i != -1),
+            default=-1,
+        )
+        if first != -1:
+            text = text[first:]
+    if text and text[-1] not in ("}", "]"):
+        last_obj = text.rfind("}")
+        last_arr = text.rfind("]")
+        last = max(last_obj, last_arr)
+        if last != -1:
+            text = text[: last + 1]
+    return text
+
+
 def parse_json_output(raw: str, *, action_field: str = "bash_command") -> dict[str, Any]:
+    if not raw or not raw.strip():
+        # Some providers return blank padding when they hit an internal limit.
+        # Surface this as a parse error with a clear hint instead of a cryptic JSONDecodeError.
+        raise ValueError(
+            "Model output was empty / whitespace-only. The provider may have hit a "
+            "token limit or content filter. Shorten your prompt or reduce step verbosity."
+        )
+    text = _strip_json_envelope(raw)
     try:
-        parsed = json.loads(raw)
+        parsed = json.loads(text)
     except json.JSONDecodeError as exc:
         raise ValueError(f"Unable to parse JSON output: {exc}") from exc
     if not isinstance(parsed, dict):

@@ -1,0 +1,24 @@
+# Fast-mode overlay — disable inner vision tools (image_qa / self_reflection)
+# while keeping the standard "agent generates final_script.py" workflow.
+#
+# Use this when:
+#   - Your model has no vision capability (e.g. DeepSeek text models)
+#   - You want to avoid the self_reflection/image_qa death loop
+#   - You still want a reusable final_script.py at the end
+#
+# Stack like:
+#   python -m webwright.run.cli \
+#       -c base.yaml -c fast_no_vision.yaml -c model_deepseek.yaml \
+#       -t "..." \
+#       --start-url ... \
+#       --task-id ... \
+#       -o outputs/default
+
+agent:
+  # Don't gate task completion on visual self-verification — the agent decides
+  # itself when the task is done based on URL / page text / action log.
+  require_self_reflection_success: false
+
+  # Compact ARIA snapshots in older observations to keep context small.
+  # The agent still sees its own actions and the latest page state.
+  keep_last_n_observations: 3

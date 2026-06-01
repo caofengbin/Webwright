@@ -135,7 +135,10 @@ agent:
 
     from playwright.async_api import async_playwright
 
-    WORKSPACE = Path(os.environ[\"WORKSPACE_DIR\"])
+    # Self-contained workspace resolution: prefer WORKSPACE_DIR (injected by the
+    # Webwright agent loop), but fall back to the script's own directory so the
+    # generated `final_script.py` remains runnable standalone with `python final_script.py`.
+    WORKSPACE = Path(os.environ.get(\"WORKSPACE_DIR\") or Path(__file__).resolve().parent)
     SCREENSHOTS = WORKSPACE / \"screenshots\"
     SCREENSHOTS.mkdir(parents=True, exist_ok=True)
 
@@ -396,6 +399,7 @@ agent:
     - create or reset `final_runs/run_<id>/final_script_log.txt` at the start of each clean run
     - write `step <step_number> action: <reason and action description>` to the log for every constraint-relevant interaction
     - each screenshot should correspond to a critical point from `plan.md` so that `self_reflection` can verify it
+    - **be runnable standalone** with `python final_script.py` outside the agent loop. NEVER write `os.environ["WORKSPACE_DIR"]` or any other unconditional env-var lookup that would `KeyError` outside the harness. Always derive the workspace from the script's own location with a fallback, e.g. `WORKSPACE = Path(os.environ.get("WORKSPACE_DIR") or Path(__file__).resolve().parents[2])` (use `parents[2]` for `final_runs/run_<id>/final_script.py`, or `parent` for a top-level copy).
 
     This instrumentation is mandatory because both `self_reflection` and the external judge evaluate those screenshots and action logs.
 
